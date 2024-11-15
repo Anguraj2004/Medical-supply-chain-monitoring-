@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>dashboard</title>
+    <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
+    <link rel="stylesheet" href="userstyle.css">
+
+    
+
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo-details">
+      <i class='bx bxs-shield-plus'></i>
+      <div class="logo_name">Daring DUO</div>
+      <i class='bx bx-menu' id="btn"></i>
+    </div>
+    <ul class="nav-list">
+  
+      <li>
+        <a href="/home">
+          <i class='bx bx-home-alt-2'></i>
+          <span class="links_name">Home</span>
+        </a>
+        <span class="tooltip">Home</span>
+      </li>
+      <li>
+        <a href="/temperature">
+          <i class='bx bxs-thermometer'></i>
+          <span class="links_name">Temperature monitor</span>
+        </a>
+        <span class="tooltip">Temperature Monitor</span>
+      </li>
+      <li>
+        
+        <a href="/gps">
+          <i class='bx bx-location-plus'></i>
+          <span class="links_name">GPS Tracker</span>
+        </a>
+        <span class="tooltip">GPS Tracker</span>
+      </li>
+      <li>
+        <a href="/analytics">
+          <i class='bx bx-pie-chart-alt-2'></i>
+          <span class="links_name">Analytics</span>
+        </a>
+        <span class="tooltip">Analytics</span>
+      </li>
+      <li>
+        <a href="/user">
+          <i class='bx bx-user'></i>
+          <span class="links_name">User</span>
+        </a>
+        <span class="tooltip">User</span>
+      </li>
+      
+      <li>
+        <a href="#">
+          <i class='bx bx-heart'></i>
+          <span class="links_name">Help</span>
+        </a>
+        <span class="tooltip">Help</span>
+      </li>
+      
+      <li class="profile">
+          <div class="profile-details">
+              <div class="name_job">
+                  <a href="/login" class="logout button">
+                      <i class='bx bx-log-out' id="log_out"></i>
+                      <span class="links_name">Logout</span>
+                    </a>
+                    <span class="tooltip">Logout</span>
+              </div>
+          </div>
+      </li>
+      
+    </ul>
+  </div>
+
+    <section class="home-section">
+        <h1>Hello, <%= username %></h1>
+    
+        <!-- Display additional information in a table -->
+        <table>
+          <tr>
+            <td><strong>Name:</strong></td>
+            <td><%= username %></td>
+        </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td><%= email %></td>
+            </tr>
+            <tr>
+                <td><strong>Phone:</strong></td>
+                <td><%= phone %></td>
+            </tr>
+            <tr>
+                <td><strong>Department:</strong></td>
+                <td><%= sec %></td>
+            </tr>
+            <tr>
+                <td><strong>Designation:</strong></td>
+                <td><%= rollno %></td>
+            </tr>
+        </table>
+        <div class="userchangepassword">
+        <p>Change Password:</p>
+        <!-- Message box for success or error messages -->
+        <div class="message-box success">
+            <!-- Success message will be displayed here -->
+        </div>
+        <div class="message-box error">
+            <!-- Error message will be displayed here -->
+        </div>
+    
+        <form method="POST" action="/changepassword">
+            <label for="oldPassword">Old Password:</label>
+            <input type="password" id="oldPassword" name="oldPassword" required><br>
+    
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required><br>
+    
+            <button type="submit" id="submitBtn" class="<%= successMessage ? 'success' : errorMessage ? 'error' : '' %>">
+                Change Password
+            </button>
+            <span id="refreshIcon">&#8635;</span>
+        </form>
+    
+        <% if (successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } else if (errorMessage) { %>
+            <p class="error"><%= errorMessage %></p>
+        <% } %>
+    
+        
+    </div>
+    </section>
+    
+
+    <script>
+        // Sidebar and menu button related scripts
+        let sidebar = document.querySelector(".sidebar");
+  let closeBtn = document.querySelector("#btn");
+  let searchBtn = document.querySelector(".bx-search");
+  closeBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+    menuBtnChange(); //calling the function(optional)
+  });
+  searchBtn.addEventListener("click", () => {
+    // Sidebar open when you click on the search iocn
+    sidebar.classList.toggle("open");
+    menuBtnChange(); //calling the function(optional)
+  });
+  // following are the code to change sidebar button(optional)
+  function menuBtnChange() {
+    if (sidebar.classList.contains("open")) {
+      closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+    } else {
+      closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+    }
+  }
+
+        /* Script for submit button */
+        const submitBtn = document.getElementById('submitBtn');
+        const oldPasswordInput = document.getElementById('oldPassword');
+
+        oldPasswordInput.addEventListener('input', () => {
+            // Reset button color on each input change
+            submitBtn.classList.remove('success', 'error');
+        });
+
+        // Add click event for the refresh icon
+        const refreshIcon = document.getElementById('refreshIcon');
+        refreshIcon.addEventListener('click', () => {
+            window.location.href = '/user';
+        });
+    </script>
+
+</body>
+
+</html>

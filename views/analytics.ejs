@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HOME</title>
+  <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
+  <link rel="stylesheet" href="/homestyle.css">
+  <style>
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    }
+    th, td {
+    padding: 10px;
+    border-bottom: 1px solid #4255d4;
+    text-align: left;
+    margin: 10px;
+    
+    }
+    th {
+    background-color:#4255d4;
+    color: #fff;
+    }
+    td{
+        background-color:#3283db;
+        color: #fff;
+        
+    }
+    /* CSS for the button */
+    .button-open-maps {
+        background: #4255d4;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 25px;
+    font-weight: bolder;
+    
+    cursor: pointer;
+    }
+
+/* Optional: Add hover effect */
+    .button-open-maps:hover {
+        background-color: #6c79cd;
+    }
+    .always-visible {
+    -webkit-text-security: none; /* For Chrome, Safari, etc. */
+    text-security: none; /* For Firefox */
+}
+
+  </style>
+
+</head>
+<body>
+  <h1>Welcome,<%= username %>!</h1>
+  <!-- Add this line after the h1 element -->
+  <a href="/login" class="login-icon button">
+    <i class='bx bx-user'></i>
+  </a>
+  
+  
+<!-- partial:index.partial.html -->
+<div class="sidebar">
+  <div class="logo-details">
+    <i class='bx bxs-shield-plus'></i>
+    <div class="logo_name">Daring DUO</div>
+    <i class='bx bx-menu' id="btn"></i>
+  </div>
+  <ul class="nav-list">
+
+    <li>
+      <a href="/home">
+        <i class='bx bx-home-alt-2'></i>
+        <span class="links_name">Home</span>
+      </a>
+      <span class="tooltip">Home</span>
+    </li>
+    <li>
+      <a href="/temperature">
+        <i class='bx bxs-thermometer'></i>
+        <span class="links_name">Temperature monitor</span>
+      </a>
+      <span class="tooltip">Temperature Monitor</span>
+    </li>
+    <li>
+      
+      <a href="/gps">
+        <i class='bx bx-location-plus'></i>
+        <span class="links_name">GPS Tracker</span>
+      </a>
+      <span class="tooltip">GPS Tracker</span>
+    </li>
+    <li>
+      <a href="/analytics">
+        <i class='bx bx-pie-chart-alt-2'></i>
+        <span class="links_name">Analytics</span>
+      </a>
+      <span class="tooltip">Analytics</span>
+    </li>
+    <li>
+      <a href="/user">
+        <i class='bx bx-user'></i>
+        <span class="links_name">User</span>
+      </a>
+      <span class="tooltip">User</span>
+    </li>
+    
+    <li>
+      <a href="#">
+        <i class='bx bx-heart'></i>
+        <span class="links_name">Help</span>
+      </a>
+      <span class="tooltip">Help</span>
+    </li>
+    
+    <li class="profile">
+        <div class="profile-details">
+            <div class="name_job">
+                <a href="/login" class="logout button">
+                    <i class='bx bx-log-out' id="log_out"></i>
+                    <span class="links_name">Logout</span>
+                  </a>
+                  <span class="tooltip">Logout</span>
+            </div>
+        </div>
+    </li>
+    
+  </ul>
+</div>
+<section class="home-section">
+
+    <div class="box-head">GPS Tracker with Temperature Monitoring</div>
+    <div class="box">
+    <form id="filterForm">
+        <label for="minTime" >Minimum Time:</label>
+        <input type="time" id="minTime" name="minTime" value="00:00" min="00:00" max="23:59">
+
+        <label for="maxTime" class="rightsidel">Maximum Time:</label>
+        <input type="time" id="maxTime" name="maxTime" value="23:59" min="00:00" max="23:59" class="rightside">
+        
+        <label for="minday" >Minimum Day:</label>
+        <input type="number" id="minday" name="minday" placeholder="DD" min="1" max="31" >
+
+        <label for="maxday" class="rightsidel">Maximum Day:</label>
+        <input type="number" id="maxday" name="maxday" placeholder="DD" class="rightside" min="1" max="31">
+
+        <label for="month">Month:</label>
+        <input type="number" id="cmon" name="cmon" placeholder="MM" min="1" min="1" max="12">
+
+        <label for="minTemp">Minimum Temperature:</label>
+        <input type="number" id="minTemp" name="minTemp"min="-127" max="40">
+
+        <label for="maxTemp" class="rightsidel">Maximum Temperature:</label>
+        <input type="number" id="maxTemp" name="maxTemp" min="-127" max="40" class="rightside">
+
+        <button onclick="filterData()">Filter Data</button>
+        
+    </form>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th> 
+                <th>Temperature</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>View in Gmaps</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody">
+            <!-- Data will be filled dynamically -->
+        </tbody>
+    </table>
+</div>
+</section>
+<!-- partial -->
+  <script>
+    let sidebar = document.querySelector(".sidebar");
+let closeBtn = document.querySelector("#btn");
+let searchBtn = document.querySelector(".bx-search");
+closeBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  menuBtnChange(); //calling the function(optional)
+});
+
+// following are the code to change sidebar button(optional)
+function menuBtnChange() {
+  if (sidebar.classList.contains("open")) {
+    closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+  } else {
+    closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+  }
+}
+
+        // Function to display filtered data in the table
+function displayData(filteredRows) {
+    var tableBody = document.getElementById('dataBody');
+    tableBody.innerHTML = ''; // Clear existing data in the table body
+
+    // Populate the table with filtered data
+    filteredRows.forEach(function (row) {
+        var newRow = document.createElement('tr');
+
+        // Create cells for date, time, temperature, latitude, and longitude
+        var dateCell = document.createElement('td');
+        dateCell.textContent = row.date;
+        newRow.appendChild(dateCell);
+
+        var timeCell = document.createElement('td');
+        timeCell.textContent = row.time;
+        newRow.appendChild(timeCell);
+
+        var tempCell = document.createElement('td');
+        tempCell.textContent = row.temperature;
+        newRow.appendChild(tempCell);
+
+        var latCell = document.createElement('td');
+        latCell.textContent = row.latitude;
+        newRow.appendChild(latCell);
+
+        var lonCell = document.createElement('td');
+        lonCell.textContent = row.longitude;
+        newRow.appendChild(lonCell);
+
+        // Create a button to open Google Maps
+    var mapButton = document.createElement('button');
+    mapButton.textContent = 'Open in Maps';
+    mapButton.classList.add('button-open-maps'); // Add class for styling
+    mapButton.addEventListener('click', function() {
+    openGoogleMaps(row.latitude, row.longitude);
+    });
+    var buttonCell = document.createElement('td');
+    buttonCell.appendChild(mapButton);
+    newRow.appendChild(buttonCell);
+
+        // Append the new row to the table body
+        tableBody.appendChild(newRow);
+    });
+}
+
+// Function to open Google Maps with latitude and longitude coordinates
+function openGoogleMaps(latitude, longitude) {
+    var url = 'https://www.google.com/maps?q=' + latitude + ',' + longitude;
+    window.open(url, '_blank');
+}
+
+
+// Function to filter and display data
+function filterData() {
+    // Fetch user input values
+    var minTime = document.getElementById('minTime').value;
+    var maxTime = document.getElementById('maxTime').value;
+    var minTemp = parseFloat(document.getElementById('minTemp').value);
+    var maxTemp = parseFloat(document.getElementById('maxTemp').value);
+    var minday = parseFloat(document.getElementById('minday').value);
+    var maxday = parseFloat(document.getElementById('maxday').value);
+    var cmon=parseFloat(document.getElementById('cmon').value);
+    // Google Sheets published URL
+    var sheetsURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLadMXwJVJKgeqM0eISa2dkjK2mknPBrd2SWfWF7rN19yA_ekXfi1TvBd_CsLdXgfHur0xJ4V0rS3X/pubhtml';
+
+    // Make AJAX request to fetch data
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', sheetsURL, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                var parser = new DOMParser();
+                var htmlDoc = parser.parseFromString(xhr.responseText, 'text/html');
+                var tableRows = htmlDoc.querySelectorAll('table tbody tr');
+
+                var filteredRows = [];
+
+                // Filter the rows based on user inputs
+                tableRows.forEach(function(row) {
+                    var cells = row.querySelectorAll('td');
+                    var dateValue = cells[0].textContent.trim();
+                    var timeValue = cells[1].textContent.trim();
+                    var temperature = parseFloat(cells[2].textContent.trim());
+                    var latitude = parseFloat(cells[3].textContent.trim());
+                    var longitude = parseFloat(cells[4].textContent.trim());
+
+                    // Check if the row satisfies the filter conditions
+                    if (isTimeInRange(timeValue, minTime, maxTime) && isTemperatureInRange(temperature, minTemp, maxTemp) && isMatchingDay(dateValue, minday,maxday) && isMatchingmon(dateValue, cmon)&& isLatitude(latitude)) {
+                        filteredRows.push({ date: dateValue, time: timeValue, temperature: temperature, latitude: latitude, longitude: longitude });
+                    }
+                });
+
+                displayData(filteredRows); // Display filtered data
+            } else {
+                console.error('Error: ' + xhr.status);
+            }
+        }
+    };
+    xhr.send();
+}
+
+
+
+// Helper function to check if time is within range
+function isTimeInRange(time, minTime, maxTime) {
+    return (time >= minTime && time <= maxTime);
+}
+
+// Helper function to check if latitude is valid
+function isLatitude(latitude) {
+    return !isNaN(latitude) && latitude !== 0;
+}
+
+
+// Helper function to check if temperature is within range
+function isTemperatureInRange(temperature, minTemp, maxTemp) {
+    return (!isNaN(temperature) && temperature >= minTemp && temperature <= maxTemp);
+}
+
+function isMatchingDay(sheetDate, minDate,maxDate) {
+    // Extract the first 5 characters of the sheet date (assuming date format 'DD/MM/YYYY HH:MM:SS')
+    var sheetDatePrefix = sheetDate.substring(0, 2);
+    // Compare with the HTML date
+    
+    var isMatch = sheetDatePrefix >= minDate && sheetDatePrefix <= maxDate;
+    console.log(sheetDatePrefix , minDate,maxDate);
+    console.log("Date comparison result:", isMatch ? "Matched" : "Not matched");
+    return isMatch;
+}
+
+function isMatchingmon(sheetDate, htmlmon) {
+    // Extract the first 5 characters of the sheet date (assuming date format 'DD/MM/YYYY HH:MM:SS')
+    var sheetDatePrefix = sheetDate.substring(3, 5);
+    // Compare with the HTML date
+    var isMatch = sheetDatePrefix == htmlmon;
+    console.log(sheetDatePrefix , htmlmon);
+    console.log("Date comparison result:", isMatch ? "Month Matched" : "month Not matched");
+    return isMatch;
+}
+// Attach event listener to form submission
+document.getElementById('filterForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+    filterData(); // Filter and display data
+});
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="signup-box">
+      <form action="/signup" method="post">
+        <h2>SIGN UP</h2>
+
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="mail"></ion-icon>
+          </span>
+          <input type="text" id="name" name="username" required autocomplete="off">
+          <label>Name</label>
+        </div>
+
+        <!-- Add fields for email, phone number, class, and roll number -->
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="mail"></ion-icon>
+          </span>
+          <input type="text" id="email" name="email" required autocomplete="off">
+          <label>Email</label>
+        </div>
+
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="call"></ion-icon>
+          </span>
+          <input type="tel" id="phone" name="phone" required autocomplete="off">
+          <label>Phone Number</label>
+        </div>
+
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="school"></ion-icon>
+          </span>
+          <input type="text" id="sec" name="sec" required autocomplete="off">
+          <label>Company</label>
+        </div>
+
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="school"></ion-icon>
+          </span>
+          <input type="text" id="rollno" name="rollno" required autocomplete="off">
+          <label>Designation</label>
+        </div>
+
+        <div class="input-box">
+          <span class="icon">
+            <ion-icon name="lock-closed"></ion-icon>
+          </span>
+          <input type="password" name="password" id="password" required>
+          <label>Password</label>
+        </div>
+
+        <button type="submit">SIGN UP</button>
+        
+        <!-- Error message box -->
+        <% if (errorMessage) { %>
+          <div class="error-box">
+            <p><%= errorMessage %></p>
+          </div>
+        <% } %>
+
+        <div class="register-link">
+          <p>Login here -><a href="/login">Login</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

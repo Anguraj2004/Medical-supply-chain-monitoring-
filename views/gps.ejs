@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HOME</title>
+  <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
+  <link rel="stylesheet" href="/homestyle.css">
+
+</head>
+<body>
+  <h1>Welcome,<%= username %>!</h1>
+  <!-- Add this line after the h1 element -->
+  <a href="/login" class="login-icon button">
+    <i class='bx bx-user'></i>
+  </a>
+  
+  
+<!-- partial:index.partial.html -->
+<div class="sidebar">
+  <div class="logo-details">
+    <i class='bx bxs-shield-plus'></i>
+    <div class="logo_name">Daring DUO</div>
+    <i class='bx bx-menu' id="btn"></i>
+  </div>
+  <ul class="nav-list">
+
+    <li>
+      <a href="/home">
+        <i class='bx bx-home-alt-2'></i>
+        <span class="links_name">Home</span>
+      </a>
+      <span class="tooltip">Home</span>
+    </li>
+    <li>
+      <a href="/temperature">
+        <i class='bx bxs-thermometer'></i>
+        <span class="links_name">Temperature monitor</span>
+      </a>
+      <span class="tooltip">Temperature Monitor</span>
+    </li>
+    <li>
+      
+      <a href="/gps">
+        <i class='bx bx-location-plus'></i>
+        <span class="links_name">GPS Tracker</span>
+      </a>
+      <span class="tooltip">GPS Tracker</span>
+    </li>
+    <li>
+      <a href="/analytics">
+        <i class='bx bx-pie-chart-alt-2'></i>
+        <span class="links_name">Analytics</span>
+      </a>
+      <span class="tooltip">Analytics</span>
+    </li>
+    <li>
+      <a href="/user">
+        <i class='bx bx-user'></i>
+        <span class="links_name">User</span>
+      </a>
+      <span class="tooltip">User</span>
+    </li>
+    
+    <li>
+      <a href="#">
+        <i class='bx bx-heart'></i>
+        <span class="links_name">Help</span>
+      </a>
+      <span class="tooltip">Help</span>
+    </li>
+    
+    <li class="profile">
+        <div class="profile-details">
+            <div class="name_job">
+                <a href="/login" class="logout button">
+                    <i class='bx bx-log-out' id="log_out"></i>
+                    <span class="links_name">Logout</span>
+                  </a>
+                  <span class="tooltip">Logout</span>
+            </div>
+        </div>
+    </li>
+    
+  </ul>
+</div>
+<section class="home-section">
+  <div class="container">
+    <div class="box-1">
+    <div class="box-head">Location Tracker</div>
+  <div>
+    <label>Latitude: <div class="locinput"><span id="latitude">------</span></div></label>
+    <label>Longitude:  <div class="locinput"><span id="longitude">------</span></div></label>
+    <button onclick="openGoogleMaps()">Open in Google Maps</button>
+  </div>
+</div>
+      
+     
+  </div>
+</section>
+<!-- partial -->
+  <script>
+    let sidebar = document.querySelector(".sidebar");
+let closeBtn = document.querySelector("#btn");
+let searchBtn = document.querySelector(".bx-search");
+closeBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  menuBtnChange(); //calling the function(optional)
+});
+
+// following are the code to change sidebar button(optional)
+function menuBtnChange() {
+  if (sidebar.classList.contains("open")) {
+    closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+  } else {
+    closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+  }
+}
+function fetchCurrentTemperatureAndCoordinates() {
+    var url = 'https://script.google.com/macros/s/AKfycbyp_7P00Qm7JCYEq-wxYzJwrmwW320WbY5PTRQwX9na4eBp1byCLnfcRyJR9ORIWifTEA/exec?action=fetch';
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+
+            // Display Latitude and Longitude
+            document.getElementById('latitude').textContent = data.latitude;
+            document.getElementById('longitude').textContent = data.longitude;
+        })
+        .catch(error => console.error('Error fetching current temperature and coordinates:', error));
+}
+
+
+// Function to open coordinates in Google Maps
+function openGoogleMaps() {
+    var latitude = document.getElementById('latitude').textContent;
+    var longitude = document.getElementById('longitude').textContent;
+    var url = 'https://www.google.com/maps?q=' + latitude + ',' + longitude;
+    window.open(url);
+}
+
+window.onload = function() {
+    fetchCurrentTemperatureAndCoordinates();
+};
+    
+
+  </script>
+
+</body>
+</html>

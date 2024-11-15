@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HOME</title>
+  <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
+  <link rel="stylesheet" href="/homestyle.css">
+  <style>
+    #message {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      border-color: darkgreen;
+    
+      font-weight: bolder;
+    }
+
+    .green {
+      background-color:#39eb45;
+      color: black;
+    }
+
+    .red {
+      background-color: red;
+      color: white;
+    }
+  </style>
+
+</head>
+<body>
+  <h1>Welcome,<%= username %>!</h1>
+  <!-- Add this line after the h1 element -->
+  <a href="/login" class="login-icon button">
+    <i class='bx bx-user'></i>
+  </a>
+  
+  
+  <div class="sidebar">
+    <div class="logo-details">
+      <i class='bx bxs-shield-plus'></i>
+      <div class="logo_name">Daring DUO</div>
+      <i class='bx bx-menu' id="btn"></i>
+    </div>
+    <ul class="nav-list">
+  
+      <li>
+        <a href="/home">
+          <i class='bx bx-home-alt-2'></i>
+          <span class="links_name">Home</span>
+        </a>
+        <span class="tooltip">Home</span>
+      </li>
+      <li>
+        <a href="/temperature">
+          <i class='bx bxs-thermometer'></i>
+          <span class="links_name">Temperature monitor</span>
+        </a>
+        <span class="tooltip">Temperature Monitor</span>
+      </li>
+      <li>
+        
+        <a href="/gps">
+          <i class='bx bx-location-plus'></i>
+          <span class="links_name">GPS Tracker</span>
+        </a>
+        <span class="tooltip">GPS Tracker</span>
+      </li>
+      <li>
+        <a href="/analytics">
+          <i class='bx bx-pie-chart-alt-2'></i>
+          <span class="links_name">Analytics</span>
+        </a>
+        <span class="tooltip">Analytics</span>
+      </li>
+      <li>
+        <a href="/user">
+          <i class='bx bx-user'></i>
+          <span class="links_name">User</span>
+        </a>
+        <span class="tooltip">User</span>
+      </li>
+      
+      <li>
+        <a href="#">
+          <i class='bx bx-heart'></i>
+          <span class="links_name">Help</span>
+        </a>
+        <span class="tooltip">Help</span>
+      </li>
+      
+      <li class="profile">
+          <div class="profile-details">
+              <div class="name_job">
+                  <a href="/login" class="logout button">
+                      <i class='bx bx-log-out' id="log_out"></i>
+                      <span class="links_name">Logout</span>
+                    </a>
+                    <span class="tooltip">Logout</span>
+              </div>
+          </div>
+      </li>
+      
+    </ul>
+  </div>
+<section class="home-section">
+  <div class="container">
+    <div class="box-1">
+    <div class="box-head">Temperature Tracker</div>
+  <div>
+    <label>Condition : </label>
+    <div id="message"><span id="currentTemp">------</span></div>
+    <label for="minTemp">Min Temperature:</label>
+    <input type="number" id="minTemp">
+    <label for="maxTemp">Max Temperature:</label>
+    <input type="number" id="maxTemp">
+    <label for="humidity">Min Humidity:</label>
+    <input type="number" id="humidity" value="">
+    <label for="humidity">Max Humidity:</label>
+    <input type="number" id="humidity" value="">
+    <button onclick="updateTemperatures()">Update Parameters</button>
+  </div>
+</div>
+      
+     
+  </div>
+</section>
+<!-- partial -->
+  <script>
+    let sidebar = document.querySelector(".sidebar");
+let closeBtn = document.querySelector("#btn");
+let searchBtn = document.querySelector(".bx-search");
+closeBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  menuBtnChange(); //calling the function(optional)
+});
+
+// following are the code to change sidebar button(optional)
+function menuBtnChange() {
+  if (sidebar.classList.contains("open")) {
+    closeBtn.classList.replace("bx-menu", "bx-menu-alt-right"); //replacing the iocns class
+  } else {
+    closeBtn.classList.replace("bx-menu-alt-right", "bx-menu"); //replacing the iocns class
+  }
+}
+
+    
+  
+    function fetchCurrentTemperature() {
+    var url = 'https://script.google.com/macros/s/AKfycbyp_7P00Qm7JCYEq-wxYzJwrmwW320WbY5PTRQwX9na4eBp1byCLnfcRyJR9ORIWifTEA/exec?action=fetch';
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('currentTemp').textContent = data.currentTemperature;
+            showTemperatureMessage(data.currentTemperature);
+        })
+        .catch(error => console.error('Error fetching current temperature:', error));
+}
+
+function showTemperatureMessage(currentTemperature) {
+    console.log('Current temperature:', currentTemperature); // Add this line for debugging
+    var messageElement = document.getElementById('message');
+    
+    // Reset styles
+    messageElement.classList.remove('green', 'red');
+    
+    if (currentTemperature === 'The temperature is in range, the package is safe') {
+        messageElement.textContent = currentTemperature;
+        messageElement.classList.add('green');
+    } else if (currentTemperature === 'Alert! The temperature is not in range') {
+        messageElement.textContent = currentTemperature;
+        messageElement.classList.add('red');
+    }
+    messageElement.style.display = 'block';
+}
+
+    function updateTemperatures() {
+      var minTemp = document.getElementById('minTemp').value;
+      var maxTemp = document.getElementById('maxTemp').value;
+      var url = 'https://script.google.com/macros/s/AKfycbyp_7P00Qm7JCYEq-wxYzJwrmwW320WbY5PTRQwX9na4eBp1byCLnfcRyJR9ORIWifTEA/exec?action=update&minTemp=' + minTemp + '&maxTemp=' + maxTemp;
+
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            console.log('Temperatures updated successfully');
+            fetchCurrentTemperature(); // Fetch current temperature after updating
+            window.location.reload(); // Reload the page after updating
+            
+          } else {
+            console.error('Error updating temperatures:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error updating temperatures:', error));
+    }
+
+      
+
+    window.onload = function() {
+      fetchCurrentTemperature();
+    };
+  </script>
+
+</body>
+</html>
