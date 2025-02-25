@@ -1,7 +1,6 @@
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
-const collection = require('./config');
 
 const app = express();
 
@@ -19,182 +18,114 @@ app.use(
   })
 );
 
+// In-memory user data storage (Dictionary)
+const users = {
+  admin: {
+    password: bcrypt.hashSync('admin123', 10),
+    email: 'admin@example.com',
+    phone: '1234567890',
+    sec: 'A',
+    rollno: '0001',
+  },
+};
+
 // Middleware to pass the error message and username to views
 app.use((req, res, next) => {
   res.locals.username = req.session.username || null;
 
-  // Retrieve messages from session
   res.locals.successMessage = req.session.successMessage || null;
   res.locals.errorMessage = req.session.errorMessage || null;
 
-  // Clear messages from session after retrieving
   req.session.successMessage = null;
   req.session.errorMessage = null;
 
   next();
 });
-app.get('/login', (req, res) => {
-  res.render('login');
-});
 
-app.get('/signup', (req, res) => {
-  res.render('signup');
-});
- 
-app.get('/gps', (req, res) => {
-  res.render('gps', { username: res.locals.username });
-});
-app.get('/home', (req, res) => {
-  res.render('home', { username: res.locals.username });
-});
-app.get('/temperature', (req, res) => {
-  res.render('temperature', { username: res.locals.username });
-});
-app.get('/analytics', (req, res) => {
-  res.render('analytics', { username: res.locals.username });
-});
+app.get('/login', (req, res) => res.render('login'));
+app.get('/signup', (req, res) => res.render('signup'));
+app.get('/gps', (req, res) => res.render('gps', { username: res.locals.username }));
+app.get('/home', (req, res) => res.render('home', { username: res.locals.username }));
+app.get('/temperature', (req, res) => res.render('temperature', { username: res.locals.username }));
+app.get('/analytics', (req, res) => res.render('analytics', { username: res.locals.username }));
 
-app.get('/user', async (req, res) => {
-  try {
-    const username = req.session.username;
-
-    if (!username) {
-      // Redirect to login page if not logged in
-      return res.redirect('/login');
-    }
-
-    // Fetch user data from the database
-    const user = await collection.findOne({ name: username });
-
-    if (!user) {
-      // Render user page with an error message if the user is not found
-      req.session.errorMessage = 'User not found';
-      return res.redirect('/user');
-    }
-
-    // Pass all user data to the user page
-    res.render('user', {
-      username: res.locals.username,
-      email: user.email,
-      phone: user.phone,
-      sec: user.sec,
-      rollno: user.rollno,
-      successMessage: res.locals.successMessage,
-      errorMessage: res.locals.errorMessage,
-    });
-  } catch (error) {
-    console.error(error);
-    req.session.errorMessage = 'Error fetching user data';
-    return res.redirect('/user');
+app.get('/user', (req, res) => {
+  const username = req.session.username;
+  if (!username || !users[username]) {
+    req.session.errorMessage = 'User not found';
+    return res.redirect('/login');
   }
+
+  const user = users[username];
+  res.render('user', {
+    username: res.locals.username,
+    email: user.email,
+    phone: user.phone,
+    sec: user.sec,
+    rollno: user.rollno,
+    successMessage: res.locals.successMessage,
+    errorMessage: res.locals.errorMessage,
+  });
 });
 
-// Inside the /signup route
+// Signup route
 app.post('/signup', async (req, res) => {
-  try {
-    const data = {
-      name: req.body.username,
-      password: req.body.password,
-      email: req.body.email,
-      phone: req.body.phone,
-      sec: req.body.sec,
-      rollno: req.body.rollno,
-    };
+  const { username, password, email, phone, sec, rollno } = req.body;
 
-    const existingUser = await collection.findOne({ name: data.name });
-
-    if (existingUser) {
-      const isPasswordMatch = await bcrypt.compare(req.body.password, existingUser.password);
-
-      if (isPasswordMatch) {
-        res.locals.errorMessage = 'Username already exists';
-        return res.render('signup', { errorMessage: res.locals.errorMessage });
-      }
-    }
-
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-    data.password = hashedPassword;
-
-    const userdata = await collection.insertMany(data);
-    console.log(userdata);
-
-    req.session.username = data.name; // Store username in session
-    res.locals.username = data.name;
-
-    res.locals.successMessage = 'User registered successfully!';
-    return res.redirect('/user');
-  } catch (error) {
-    console.error(error);
-    res.locals.errorMessage = 'Error registering user';
+  if (users[username]) {
+    res.locals.errorMessage = 'Username already exists';
     return res.render('signup', { errorMessage: res.locals.errorMessage });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users[username] = { password: hashedPassword, email, phone, sec, rollno };
+
+  req.session.username = username;
+  res.locals.username = username;
+  req.session.successMessage = 'User registered successfully!';
+  res.redirect('/user');
 });
 
-// Inside the /login route
+// Login route
 app.post('/login', async (req, res) => {
-  try {
-    const check = await collection.findOne({ name: req.body.username });
-  
-    if (!check) {
-      res.locals.errorMessage = 'Username not found';
-      return res.render('login', { errorMessage: res.locals.errorMessage });
-    }
+  const { username, password } = req.body;
 
-    const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
+  if (!users[username]) {
+    res.locals.errorMessage = 'Username not found';
+    return res.render('login', { errorMessage: res.locals.errorMessage });
+  }
 
-    if (isPasswordMatch) {
-      req.session.username = req.body.username; // Store username in session
-      res.locals.username = req.body.username;
-      return res.redirect('/home');
-    } else {
-      res.locals.errorMessage = 'Wrong password';
-      return res.render('login', { errorMessage: res.locals.errorMessage });
-    }
-  } catch (error) {
-    console.error(error);
-    res.locals.errorMessage = 'Error logging in';
+  const isPasswordMatch = await bcrypt.compare(password, users[username].password);
+  if (isPasswordMatch) {
+    req.session.username = username;
+    res.locals.username = username;
+    return res.redirect('/home');
+  } else {
+    res.locals.errorMessage = 'Wrong password';
     return res.render('login', { errorMessage: res.locals.errorMessage });
   }
 });
 
-
-
+// Change password route
 app.post('/changepassword', async (req, res) => {
-  try {
-    const username = req.session.username;
-    const oldPassword = req.body.oldPassword;
-    const newPassword = req.body.newPassword;
+  const username = req.session.username;
+  const { oldPassword, newPassword } = req.body;
 
-    const user = await collection.findOne({ name: username });
+  if (!username || !users[username]) {
+    req.session.errorMessage = 'User not found';
+    return res.redirect('/login');
+  }
 
-    if (!user) {
-      req.session.errorMessage = 'User not found';
-      return res.redirect('/login');
-    }
-
-    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
-
-    if (isPasswordMatch) {
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      await collection.updateOne({ name: username }, { $set: { password: hashedNewPassword } });
-
-      // Set success message
-      req.session.successMessage = 'Password changed successfully!';
-      return res.redirect('/user');
-    } else {
-      // Set error message
-      req.session.errorMessage = 'Incorrect old password';
-      return res.redirect('/user');
-    }
-  } catch (error) {
-    console.error(error);
-    req.session.errorMessage = 'Error changing password';
+  const isPasswordMatch = await bcrypt.compare(oldPassword, users[username].password);
+  if (isPasswordMatch) {
+    users[username].password = await bcrypt.hash(newPassword, 10);
+    req.session.successMessage = 'Password changed successfully!';
+    return res.redirect('/user');
+  } else {
+    req.session.errorMessage = 'Incorrect old password';
     return res.redirect('/user');
   }
 });
 
 const port = 4000;
-app.listen(port, () => {
-  console.log(`Server running on Port: ${port}`);
-});
+app.listen(port, () => console.log(`Server running on Port: ${port}`));

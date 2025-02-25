@@ -1,39 +1,17 @@
-const  mongoose =require("mongoose");
-const connect=mongoose.connect("mongodb+srv://Auth:Auth@cluster0.bldbxeq.mongodb.net/Login?retryWrites=true&w=majority");
+// config.js - Replacing MongoDB with an in-memory user store
 
-connect.then(()=>{
-    console.log("Database connected");
-})
-.catch(()=>{
-    console.log("Database not connected");
-});
+const bcrypt = require('bcrypt');
 
-const LoginSchema=new mongoose.Schema({
-    name:{
-        type: String,
-        required: true
-    },
-    email:{
-        type: String,
-        required: true
-    },
-    phone:{
-        type: String,
-        required: true
-    },
-    sec:{
-        type: String,
-        required: true
-    },
-    rollno:{
-        type: String,
-        required: true
-    },
-    password:{
-        type: String,
-        required: true
-    }
+// In-memory user data storage (Dictionary)
+const users = {
+  admin: {
+    password: bcrypt.hashSync('admin123', 10),
+    email: 'admin@example.com',
+    phone: '1234567890',
+    sec: 'A',
+    rollno: '0001',
+  },
+};
 
-});
-const collection = new mongoose.model("users",LoginSchema);
-module.exports=collection;
+// Export the users object to use in other files
+module.exports = users;
